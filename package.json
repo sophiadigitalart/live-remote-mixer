@@ -1,0 +1,22 @@
+{
+	"name": "live-remote-mixer",
+	"version": "1.0.0",
+	"description": "A basic mixer for Live",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Michael Hopfner",
+	"license": "MIT",
+	"devDependencies": {
+		"browserify": "13.0.1",
+		"glob": "7.0.5",
+		"gulp": "3.9.1",
+		"gulp-sass": "2.3.2",
+		"vinyl-source-stream": "1.1.0"
+	},
+	"dependencies": {
+		"live-remote-api": "1.0.0",
+		"live-remote-params": "1.0.2",
+		"jquery": "3.1.0"
+	}
+}
