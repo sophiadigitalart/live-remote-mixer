@@ -22,3 +22,4 @@ A basic mixer for Live
 
  * contact me if you miss something. Maybe I'll have & take the time.
 
+![alt tag](https://raw.githubusercontent.com/mihop/live-remote-mixer/master/mixer.png)
