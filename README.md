@@ -15,7 +15,7 @@ A basic mixer for Live
 
  * install npm
  * in the folder for this project, type 'npm install', then 'gulp'
- * change the file 'js/live-remote-js-example.js'. It will automatically be recompiled.
+ * change files in 'src'. They will automatically be recompiled.
  * Refresh your browser to see your changes
 
 ####Ideas
