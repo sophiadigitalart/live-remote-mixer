@@ -14,7 +14,7 @@ function Master() {
 	
 	var div = $('<div class="master track">')
 	.append(name, volume.div(), pan.div())
-	.appendTo(document.body)
+	.appendTo($("#container"))
 	
 }
 

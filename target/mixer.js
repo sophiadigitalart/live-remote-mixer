@@ -10699,21 +10699,21 @@ function Master() {
 	
 	var div = $('<div class="master track">')
 	.append(name, volume.div(), pan.div())
-	.appendTo(document.body)
+	.appendTo($("#container"))
 	
 }
 
 function getVolume() {
 	var volume = new params.Slider()
 	volume.div().addClass("volume")
-	RemoteApi.create("live_set master_track mixer_device volume", (err, api) => volume.api(api))
+	RemoteApi.create("live_set master_track mixer_device volume", function(err, api) { volume.api(api)})
 	return volume
 }
 
 function getPan() {
 	var pan = new params.PanKnob()
 	pan.div().addClass("pan")
-	RemoteApi.create("live_set master_track mixer_device panning", (err, api) => pan.api(api))
+	RemoteApi.create("live_set master_track mixer_device panning", function(err, api) { pan.api(api)})
 	return pan
 }
 
@@ -10758,8 +10758,8 @@ RemoteApi.onOpen(function() {
 			return
 		}
 		api.observe("tracks", function(idlist) {
-			var track_ids = idlist.substr(3).split(/ id /g).map(id => parseInt(id))
-			track_ids.forEach((id, index) => {
+			var track_ids = idlist.substr(3).split(/ id /g).map(function(id) { parseInt(id)})
+			track_ids.forEach(function(id, index) {
 				var track = tracks[index]
 				if(!track) createTrack(index, id)
 				else if(track.id != id) swapTrack(index, id)
@@ -10783,9 +10783,9 @@ module.exports = getSolo
 var exclusive_solo = 0
 var solo_apis = []
 
-RemoteApi.onOpen(() => {
-	RemoteApi.create("live_set", (err, api) => {
-		api.get("exclusive_solo", val => {
+RemoteApi.onOpen(function() {
+	RemoteApi.create("live_set", function(err, api) {
+		api.get("exclusive_solo", function(val) {
 			exclusive_solo = parseInt(val)
 			api.destroy()
 		})
@@ -10800,19 +10800,19 @@ function getSolo(index) {
 	solo.api = function(api) {
 		if(api === undefined) return solo._api
 		solo._api = api
-		api.observe("solo", val => solo.setValue(parseFloat(val)))
-		solo.onValue = val => {
+		api.observe("solo", function(val) { solo.setValue(parseFloat(val))})
+		solo.onValue = function(val) {
 			api.set("solo", val)
 			if(!val || !exclusive_solo) return
-			solo_apis.forEach(a => {
+			solo_apis.forEach(function(a) {
 				if(a != api) a.set("solo", 0)
 			})
 		}
 	}
 	
-	RemoteApi.create("live_set tracks " + index, (err, api) => {
+	RemoteApi.create("live_set tracks " + index, function(err, api) {
 		var api_index = solo_apis.push(api) - 1
-		api.observe("id", id => {
+		api.observe("id", function(id) {
 			if(id != 0) return
 			api.destroy()
 			solo_apis.splice(api_index, 1)
@@ -10831,7 +10831,7 @@ var $ = require("jquery")
 
 module.exports = Track
 
-var host = $('<div class="tracks">').prependTo(document.body)
+var host = $('<div class="tracks">').prependTo($("#container"))
 
 function Track(index, id) {
 	
@@ -10847,7 +10847,7 @@ function Track(index, id) {
 	if(index == 0) div.prependTo(host)
 	else div.insertAfter(host.children(".track").eq(index - 1))
 	
-	RemoteApi.create("live_set tracks " + index, (err, api) => {
+	RemoteApi.create("live_set tracks " + index, function(err, api) {
 		if(api.info.id != id) console.error("expected api id " + id + " at index " + index + ", was " + api.info.id + ". Something is seriously wrong!")
 		api.destroy()
 	})
@@ -10872,31 +10872,31 @@ function Track(index, id) {
 function getName(index) {
 	var api;
 	var div = $('<div class="name">')
-	RemoteApi.create("live_set tracks " + index, (err, api) => {
-		api.observe("name", val => div.text(val))
+	RemoteApi.create("live_set tracks " + index, function(err, api) {
+		api.observe("name", function(val) { div.text(val) })
 	})
-	return { div: () => div, api: () => api }
+	return { div: function() { return div }, api: function() { return api }}
 }
 
 
 function getVolume(index) {
 	var volume = new params.Slider()
 	volume.div().addClass("volume")
-	RemoteApi.create("live_set tracks " + index + " mixer_device volume", (err, api) => volume.api(api))
+	RemoteApi.create("live_set tracks " + index + " mixer_device volume", function(err,api) { volume.api(api)})
 	return volume
 }
 
 function getPan(index) {
 	var pan = new params.PanKnob()
 	pan.div().addClass("pan")
-	RemoteApi.create("live_set tracks " + index + " mixer_device panning", (err, api) => pan.api(api))
+	RemoteApi.create("live_set tracks " + index + " mixer_device panning", function(err,api) { pan.api(api)})
 	return pan
 }
 
 
 function getActivator(index) {
 	var activator = new params.Toggle()
-	RemoteApi.create("live_set tracks " + index + " mixer_device track_activator", (err, api) => activator.api(api))
+	RemoteApi.create("live_set tracks " + index + " mixer_device track_activator", function(err,api) { activator.api(api)})
 	activator.div()
 	.addClass("activator")
 	.append($('<div class="number">').text(index + 1))

@@ -7,7 +7,7 @@ var $ = require("jquery")
 
 module.exports = Track
 
-var host = $('<div class="tracks">').prependTo(document.body)
+var host = $('<div class="tracks">').prependTo($("#container"))
 
 function Track(index, id) {
 	
