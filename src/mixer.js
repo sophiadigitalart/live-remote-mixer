@@ -36,8 +36,8 @@ RemoteApi.onOpen(function() {
 			return
 		}
 		api.observe("tracks", function(idlist) {
-			var track_ids = idlist.substr(3).split(/ id /g).map(id => parseInt(id))
-			track_ids.forEach((id, index) => {
+			var track_ids = idlist.substr(3).split(/ id /g).map(function(id) { parseInt(id)})
+			track_ids.forEach(function(id, index) {
 				var track = tracks[index]
 				if(!track) createTrack(index, id)
 				else if(track.id != id) swapTrack(index, id)

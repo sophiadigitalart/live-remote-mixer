@@ -21,14 +21,14 @@ function Master() {
 function getVolume() {
 	var volume = new params.Slider()
 	volume.div().addClass("volume")
-	RemoteApi.create("live_set master_track mixer_device volume", (err, api) => volume.api(api))
+	RemoteApi.create("live_set master_track mixer_device volume", function(err, api) { volume.api(api)})
 	return volume
 }
 
 function getPan() {
 	var pan = new params.PanKnob()
 	pan.div().addClass("pan")
-	RemoteApi.create("live_set master_track mixer_device panning", (err, api) => pan.api(api))
+	RemoteApi.create("live_set master_track mixer_device panning", function(err, api) { pan.api(api)})
 	return pan
 }
 

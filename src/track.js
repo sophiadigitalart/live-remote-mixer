@@ -23,7 +23,7 @@ function Track(index, id) {
 	if(index == 0) div.prependTo(host)
 	else div.insertAfter(host.children(".track").eq(index - 1))
 	
-	RemoteApi.create("live_set tracks " + index, (err, api) => {
+	RemoteApi.create("live_set tracks " + index, function(err, api) {
 		if(api.info.id != id) console.error("expected api id " + id + " at index " + index + ", was " + api.info.id + ". Something is seriously wrong!")
 		api.destroy()
 	})
@@ -48,31 +48,31 @@ function Track(index, id) {
 function getName(index) {
 	var api;
 	var div = $('<div class="name">')
-	RemoteApi.create("live_set tracks " + index, (err, api) => {
-		api.observe("name", val => div.text(val))
+	RemoteApi.create("live_set tracks " + index, function(err, api) {
+		api.observe("name", function(val) { div.text(val) })
 	})
-	return { div: () => div, api: () => api }
+	return { div: function() { return div }, api: function() { return api }}
 }
 
 
 function getVolume(index) {
 	var volume = new params.Slider()
 	volume.div().addClass("volume")
-	RemoteApi.create("live_set tracks " + index + " mixer_device volume", (err, api) => volume.api(api))
+	RemoteApi.create("live_set tracks " + index + " mixer_device volume", function(err,api) { volume.api(api)})
 	return volume
 }
 
 function getPan(index) {
 	var pan = new params.PanKnob()
 	pan.div().addClass("pan")
-	RemoteApi.create("live_set tracks " + index + " mixer_device panning", (err, api) => pan.api(api))
+	RemoteApi.create("live_set tracks " + index + " mixer_device panning", function(err,api) { pan.api(api)})
 	return pan
 }
 
 
 function getActivator(index) {
 	var activator = new params.Toggle()
-	RemoteApi.create("live_set tracks " + index + " mixer_device track_activator", (err, api) => activator.api(api))
+	RemoteApi.create("live_set tracks " + index + " mixer_device track_activator", function(err,api) { activator.api(api)})
 	activator.div()
 	.addClass("activator")
 	.append($('<div class="number">').text(index + 1))
