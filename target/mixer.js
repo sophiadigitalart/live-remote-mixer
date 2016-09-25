@@ -10457,7 +10457,7 @@ var AbstractParam = (function () {
 }());
 exports.AbstractParam = AbstractParam;
 
-},{"./globl":12,"jquery":4}],7:[function(require,module,exports){
+},{"./globl":13,"jquery":4}],7:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -10630,6 +10630,107 @@ exports.Toggle = Toggle;
 
 },{"./AbstractParam":6}],12:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var AbstractParam_1 = require("./AbstractParam");
+var $ = require("jquery");
+var XYPad = (function (_super) {
+    __extends(XYPad, _super);
+    function XYPad() {
+        _super.call(this);
+        this._minY = -1;
+        this._maxY = 1;
+        this._rangeY = 2;
+        this._defaultY = NaN;
+        this._dot = $('<div class="dot">');
+        this._div.addClass("xypad").append(this._dot);
+    }
+    XYPad.prototype.apiY = function (apiY) {
+        if (apiY === undefined)
+            return this._apiY;
+        this._apiY = apiY;
+        var self = this;
+        if (apiY.info.type != "DeviceParameter")
+            throw "cannot control api of type " + apiY.info.type;
+        apiY.get("original_name", function (val) { return self._nameY = val; });
+        apiY.get("min", function (val) { return self.minY(parseFloat(val)); });
+        apiY.get("max", function (val) { return self.maxY(parseFloat(val)); });
+        if (apiY.info.properties.indexOf("default_value float") != -1)
+            apiY.get("default_value", function (val) { return self.defY(parseFloat(val)); });
+        apiY.observe("value", function (val) { return self.setValueY(parseFloat(val)); });
+        self.onValueY = function (val) { return apiY.set("value", val); };
+    };
+    XYPad.prototype.minY = function (val) {
+        if (val === undefined)
+            return this._minY;
+        this._minY = val;
+        this._rangeY = this._maxY - this._minY;
+    };
+    XYPad.prototype.maxY = function (val) {
+        if (val === undefined)
+            return this._maxY;
+        this._maxY = val;
+        this._rangeY = this._maxY - this._minY;
+    };
+    XYPad.prototype.defY = function (val) {
+        if (val === undefined)
+            return this._defaultY;
+        this._defaultY = val;
+    };
+    XYPad.prototype.onDown = function (e) {
+        this.setVars();
+        this.onMove(e);
+    };
+    XYPad.prototype.onMove = function (e) {
+        var x = e.pageX;
+        var v;
+        if (x <= this._left)
+            v = 0;
+        else if (x >= this._right)
+            v = 1;
+        else
+            v = (x - this._left) / this._width;
+        this.onValue(this._min + this._range * v);
+        var y = e.pageY;
+        if (y <= this._top)
+            v = 1;
+        else if (y >= this._bottom)
+            v = 0;
+        else
+            v = 1 - ((y - this._top) / this._height);
+        this.onValueY(this._minY + this._rangeY * v);
+    };
+    XYPad.prototype.setVars = function () {
+        if (this._width === undefined) {
+            this._left = this._div.offset().left;
+            this._width = this._div.width() - this._dot.width();
+            this._right = this._left + this._width;
+            this._top = this._div.offset().top;
+            this._height = this._div.height() - this._dot.height();
+            this._bottom = this._top + this._height;
+        }
+    };
+    XYPad.prototype.setValue = function (val) {
+        this.setVars();
+        var v = (val - this._min) / this._range;
+        var x = v * this._width;
+        this._dot.css("left", x + "px");
+    };
+    XYPad.prototype.setValueY = function (val) {
+        this.setVars();
+        var v = (val - this._minY) / this._rangeY;
+        var y = (1 - v) * this._height;
+        this._dot.css("top", y + "px");
+    };
+    return XYPad;
+}(AbstractParam_1.AbstractParam));
+exports.XYPad = XYPad;
+
+},{"./AbstractParam":6,"jquery":4}],13:[function(require,module,exports){
+"use strict";
 var live_remote_api_1 = require("live-remote-api");
 var selectedParam;
 document.addEventListener("keydown", function (e) {
@@ -10664,15 +10765,22 @@ var globl;
     globl.deselect = deselect;
 })(globl = exports.globl || (exports.globl = {}));
 
-},{"live-remote-api":2}],13:[function(require,module,exports){
+},{"live-remote-api":2}],14:[function(require,module,exports){
 "use strict";
-Element.prototype.requestPointerLock = Element.prototype.requestPointerLock || Element.prototype.mozRequestPointerLock || Element.prototype.webkitRequestPointerLock;
-document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock || document.webkitExitPointerLock;
+if ("ontouchstart" in document) {
+    Element.prototype.requestPointerLock = function () { };
+    document.exitPointerLock = function () { };
+}
+else {
+    Element.prototype.requestPointerLock = Element.prototype.requestPointerLock || Element.prototype.mozRequestPointerLock || Element.prototype.webkitRequestPointerLock;
+    document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock || document.webkitExitPointerLock;
+}
 var Toggle_1 = require("./Toggle");
 var Slider_1 = require("./Slider");
 var HSlider_1 = require("./HSlider");
 var Knob_1 = require("./Knob");
 var PanKnob_1 = require("./PanKnob");
+var XYPad_1 = require("./XYPad");
 var params;
 (function (params) {
     params.Toggle = Toggle_1.Toggle;
@@ -10680,9 +10788,10 @@ var params;
     params.HSlider = HSlider_1.HSlider;
     params.Knob = Knob_1.Knob;
     params.PanKnob = PanKnob_1.PanKnob;
+    params.XYPad = XYPad_1.XYPad;
 })(params = exports.params || (exports.params = {}));
 
-},{"./HSlider":7,"./Knob":8,"./PanKnob":9,"./Slider":10,"./Toggle":11}],14:[function(require,module,exports){
+},{"./HSlider":7,"./Knob":8,"./PanKnob":9,"./Slider":10,"./Toggle":11,"./XYPad":12}],15:[function(require,module,exports){
 "use strict"
 
 var RemoteApi = require("live-remote-api").RemoteApi
@@ -10719,7 +10828,7 @@ function getPan() {
 
 
 
-},{"jquery":4,"live-remote-api":2,"live-remote-params":13}],15:[function(require,module,exports){
+},{"jquery":4,"live-remote-api":2,"live-remote-params":14}],16:[function(require,module,exports){
 "use strict"
 
 var RemoteApi = require("live-remote-api").RemoteApi
@@ -10772,7 +10881,7 @@ RemoteApi.onOpen(function() {
 
 
 
-},{"./master":14,"./track":17,"live-remote-api":2,"live-remote-params":13}],16:[function(require,module,exports){
+},{"./master":15,"./track":18,"live-remote-api":2,"live-remote-params":14}],17:[function(require,module,exports){
 "use strict"
 
 var RemoteApi = require("live-remote-api").RemoteApi
@@ -10821,7 +10930,7 @@ function getSolo(index) {
 	})
 	return solo
 }
-},{"live-remote-api":2,"live-remote-params":13}],17:[function(require,module,exports){
+},{"live-remote-api":2,"live-remote-params":14}],18:[function(require,module,exports){
 "use strict"
 
 var RemoteApi = require("live-remote-api").RemoteApi
@@ -10904,4 +11013,4 @@ function getActivator(index) {
 }
 	
 
-},{"./solo":16,"jquery":4,"live-remote-api":2,"live-remote-params":13}]},{},[14,15,16,17]);
+},{"./solo":17,"jquery":4,"live-remote-api":2,"live-remote-params":14}]},{},[15,16,17,18]);
